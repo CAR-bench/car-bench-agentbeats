@@ -1,0 +1,33 @@
+# Testing published Docker images from GitHub Container Registry
+# This file is for testing the images published by GitHub Actions
+#
+# Usage:
+#   1. Ensure images are published to ghcr.io (check GitHub Actions)
+#   2. python generate_compose.py --scenario scenarios/scenario-ghcr.toml
+#   3. cp .env.example .env  # Edit with your API keys
+#   4. mkdir -p output
+#   5. docker compose up --abort-on-container-exit
+
+[green_agent]
+# Pull published image from GitHub Container Registry
+# Update the tag as needed (e.g., :v1.0.0, :main, :latest)
+image = "ghcr.io/car-bench/car-bench-agentbeats-car-bench-evaluator:latest"
+# Environment variables for the green agent
+env = { GEMINI_API_KEY = "${GEMINI_API_KEY}", LOGURU_LEVEL = "${LOGURU_LEVEL}" }
+
+[[participants]]
+# Pull published image from GitHub Container Registry
+image = "ghcr.io/car-bench/car-bench-agentbeats-car-bench-agent:latest"
+name = "agent"
+# Environment variables - include all API keys the agent might need
+env = { ANTHROPIC_API_KEY = "${ANTHROPIC_API_KEY}", OPENAI_API_KEY = "${OPENAI_API_KEY}", GEMINI_API_KEY = "${GEMINI_API_KEY}", AGENT_LLM = "anthropic/claude-haiku-4-5-20251001", LOGURU_LEVEL = "${LOGURU_LEVEL}" }
+
+[config]
+# CAR-bench specific configuration
+# For testing, use smaller numbers to verify quickly
+num_trials = 1
+task_split = "test"
+tasks_base_num_tasks = 2  # Just 2 tasks for quick smoke test
+tasks_hallucination_num_tasks = 0
+tasks_disambiguation_num_tasks = 0
+max_steps = 50
