@@ -15,7 +15,7 @@ RUN find scenarios -type d -name "__pycache__" -exec rm -rf {} + || true
 
 RUN \
     --mount=type=cache,target=/home/agentbeats/.cache/uv,uid=1000 \
-    uv  sync --frozen --extra car-bench-agent
+    uv  sync --no-cache --extra car-bench-agent
 
 ENTRYPOINT ["uv", "run", "src/purple_car_bench_agent/server.py"]
 CMD ["--host", "0.0.0.0"]
