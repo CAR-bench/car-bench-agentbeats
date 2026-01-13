@@ -117,7 +117,7 @@ class CARBenchAgentExecutor(AgentExecutor):
             
             # Get the message from LLM
             llm_message = response.choices[0].message
-            assistant_content = llm_message.model_dump()
+            assistant_content = llm_message.model_dump(exclude_unset=True)
             
             # Extract tool calls from assistant content
             tool_calls = assistant_content.get("tool_calls")

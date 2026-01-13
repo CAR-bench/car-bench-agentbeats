@@ -2,8 +2,18 @@
 import argparse
 import sys
 from pathlib import Path
+import warnings
 
 import uvicorn
+
+# Suppress Pydantic serialization warnings from litellm types
+# These occur because litellm's Message/Choices types don't set all optional fields
+warnings.filterwarnings(
+    "ignore",
+    message=".*Pydantic serializer warnings.*",
+    category=UserWarning,
+    module="pydantic.main"
+)
 
 from a2a.server.apps import A2AStarletteApplication
 from a2a.server.request_handlers import DefaultRequestHandler
