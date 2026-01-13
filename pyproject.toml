@@ -40,7 +40,7 @@ dev = [
 package = true
 
 [tool.uv.sources]
-car-bench = { path = "scenarios/car-bench/car-bench", editable = true }
+car-bench = { path = "scenarios/car-bench/car-bench" }
 
 [tool.hatch.metadata]
 allow-direct-references = true

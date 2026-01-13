@@ -1,5 +1,9 @@
 FROM ghcr.io/astral-sh/uv:python3.12-trixie
 
+# Accept GITHUB_TOKEN as build arg for downloading private repo assets
+ARG GITHUB_TOKEN
+ENV GITHUB_TOKEN=${GITHUB_TOKEN}
+
 RUN adduser agentbeats
 USER agentbeats
 RUN mkdir -p /home/agentbeats/.cache/uv
@@ -13,9 +17,13 @@ COPY --chown=agentbeats:agentbeats scenarios scenarios
 RUN find scenarios -type d -name "*.egg-info" -exec rm -rf {} + || true
 RUN find scenarios -type d -name "__pycache__" -exec rm -rf {} + || true
 
+# Download CAR-bench data (navigation mock data)
+# Note: If this fails in CI, you may need to set GITHUB_TOKEN secret
+RUN cd scenarios/car-bench && bash setup.sh
+
 RUN \
     --mount=type=cache,target=/home/agentbeats/.cache/uv,uid=1000 \
-    uv  sync --no-cache --extra car-bench-agent
+    uv sync --no-editable --extra car-bench-agent
 
 ENTRYPOINT ["uv", "run", "src/purple_car_bench_agent/server.py"]
 CMD ["--host", "0.0.0.0"]

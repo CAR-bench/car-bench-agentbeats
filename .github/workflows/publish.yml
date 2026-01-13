@@ -71,6 +71,9 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           # Explicitly build for linux/amd64 (GitHub Actions default)
           platforms: linux/amd64
+          # Pass GITHUB_TOKEN to setup.sh for downloading private repo assets
+          build-args: |
+            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
       - name: Output image digest
         if: github.event_name != 'pull_request'
