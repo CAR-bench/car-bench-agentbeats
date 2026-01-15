@@ -123,6 +123,8 @@ def main():
                         help="Run evaluation only without starting agent servers")
     parser.add_argument("--timeout", type=int, default=30,
                         help="Timeout in seconds to wait for agents to be ready (default: 30)")
+    parser.add_argument("--output", type=str, default="output/results.json",
+                        help="Path to save results JSON file (default: output/results.json)")
     args = parser.parse_args()
 
     # Validate that --serve-only and --evaluate-only are not both set
@@ -189,9 +191,9 @@ def main():
                         break
                     time.sleep(0.5)
         else:
-            logger.info("Starting evaluation client")
+            logger.info("Starting evaluation client", output=args.output)
             client_proc = subprocess.Popen(
-                [sys.executable, "-m", "agentbeats.client_cli", args.scenario],
+                [sys.executable, "-m", "agentbeats.client_cli", args.scenario, args.output],
                 env=base_env,
                 start_new_session=True,
             )
