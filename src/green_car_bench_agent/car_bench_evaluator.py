@@ -188,6 +188,7 @@ def create_remote_agent_factory(agent_url: str):
                     
                     content = None
                     tool_calls = None
+                    reasoning_content = None
                     
                     # Process each part
                     for part in parts:
@@ -211,6 +212,8 @@ def create_remote_agent_factory(agent_url: str):
                                         }
                                         for tc in data["tool_calls"]
                                     ]
+                                elif "reasoning_content" in data:
+                                    reasoning_content = data["reasoning_content"]
                         else:
                             # Dict representation
                             part_kind = part.get("root", {}).get("kind") or part.get("kind")
@@ -234,6 +237,8 @@ def create_remote_agent_factory(agent_url: str):
                                         }
                                         for tc in data["tool_calls"]
                                     ]
+                                elif data and "reasoning_content" in data:
+                                    reasoning_content = data["reasoning_content"]
                     
                     parsed_msg = {
                         "role": "assistant",
@@ -241,12 +246,18 @@ def create_remote_agent_factory(agent_url: str):
                         "tool_calls": tool_calls,
                     }
                     
+                    # Include reasoning_content for debugging if present
+                    if reasoning_content:
+                        parsed_msg["reasoning_content"] = reasoning_content
+                    
                     logger.debug(
                         "Parsed purple agent response",
                         has_content=bool(content),
                         content_preview=content[:100] if content else None,
                         has_tool_calls=bool(tool_calls),
-                        tool_calls=tool_calls
+                        tool_calls=tool_calls,
+                        has_reasoning=bool(reasoning_content),
+                        reasoning_preview=reasoning_content[:100] if reasoning_content else None
                     )
                     
                     return parsed_msg

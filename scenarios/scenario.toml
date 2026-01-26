@@ -5,7 +5,7 @@ cmd = "python src/green_car_bench_agent/server.py --host 127.0.0.1 --port 8081"
 [[participants]]
 role = "agent"
 endpoint = "http://127.0.0.1:8080"
-cmd = "python src/purple_car_bench_agent/server.py --host 127.0.0.1 --port 8080 --agent-llm anthropic/claude-haiku-4-5-20251001"
+cmd = "python src/purple_car_bench_agent/server.py --host 127.0.0.1 --port 8080 --agent-llm claude-opus-4-5-20251101 --temperature 1.0 --thinking --reasoning-effort medium --interleaved-thinking"
 
 [config]
 num_trials = 3

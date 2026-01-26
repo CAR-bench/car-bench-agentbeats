@@ -108,7 +108,33 @@ class CARBenchAgentExecutor(AgentExecutor):
             logger.warning(f"Failed to parse message parts: {e}, using fallback")
             user_message_text = context.get_user_input()
 
-        messages.append({"role": "user", "content": user_message_text})
+        # Check if previous message had tool calls - if so, format as tool results
+        if messages and messages[-1].get("role") == "assistant" and messages[-1].get("tool_calls"):
+            # This message contains tool results - format them for Claude
+            tool_call_ids = [tc["id"] for tc in messages[-1]["tool_calls"]]
+            
+            # Parse tool results from the user message
+            # CAR-bench sends tool results as text like "Tool: get_location\nResult: {...}"
+            # We need to match each result with its tool_call_id
+            tool_results = []
+            for i, tool_call in enumerate(messages[-1]["tool_calls"]):
+                tool_results.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call["id"],
+                    "content": user_message_text  # For now, send full message to each tool
+                })
+            
+            # Add all tool result messages
+            messages.extend(tool_results)
+            
+            ctx_logger.debug(
+                "Formatted tool results",
+                num_tools=len(tool_results),
+                tool_call_ids=[tr["tool_call_id"] for tr in tool_results]
+            )
+        else:
+            # Regular user message
+            messages.append({"role": "user", "content": user_message_text})
 
         # Call LLM with native tool calling
         try:
@@ -166,13 +192,15 @@ class CARBenchAgentExecutor(AgentExecutor):
                 has_tool_calls=bool(tool_calls),
                 num_tool_calls=len(tool_calls) if tool_calls else 0,
                 has_content=bool(assistant_content.get("content")),
-                content_length=len(assistant_content.get("content") or "")
+                content_length=len(assistant_content.get("content") or ""),
+                has_thinking=bool(assistant_content.get("thinking_blocks") or assistant_content.get("reasoning_content"))
             )
             ctx_logger.debug(
                 "LLM response details",
                 context_id=context.context_id[:8],
                 content=assistant_content.get("content"),
-                tool_calls=[{"name": tc["function"]["name"], "args": tc["function"]["arguments"]} for tc in tool_calls] if tool_calls else None
+                tool_calls=[{"name": tc["function"]["name"], "args": tc["function"]["arguments"]} for tc in tool_calls] if tool_calls else None,
+                reasoning_content=assistant_content.get("reasoning_content")
             )
 
             # Build proper A2A Message with Parts
@@ -200,6 +228,13 @@ class CARBenchAgentExecutor(AgentExecutor):
                     data=tool_calls_data.model_dump()
                 )))
             
+            # Add reasoning_content as DataPart for debugging (if present)
+            if assistant_content.get("reasoning_content"):
+                parts.append(Part(root=DataPart(
+                    kind="data",
+                    data={"reasoning_content": assistant_content["reasoning_content"]}
+                )))
+            
             # If no parts, add empty text
             if not parts:
                 parts.append(Part(root=TextPart(
@@ -221,9 +256,27 @@ class CARBenchAgentExecutor(AgentExecutor):
                 kind="text",
                 text=f"Error processing request: {str(e)}"
             ))]
+            # Create a simple assistant_content for error case
+            assistant_content = {"content": f"Error processing request: {str(e)}"}
 
-        # Add to history (serialize for storage)
-        messages.append({"role": "assistant", "content": json.dumps([p.model_dump() for p in parts])})
+        # Add to history - preserve complete assistant message including thinking blocks
+        # Store the full assistant_content to preserve thinking blocks and reasoning_content
+        assistant_message_for_history = {
+            "role": "assistant",
+            "content": assistant_content.get("content"),
+        }
+        
+        # Preserve tool calls in proper format for LLM API
+        if assistant_content.get("tool_calls"):
+            assistant_message_for_history["tool_calls"] = assistant_content["tool_calls"]
+        
+        # Preserve thinking blocks and reasoning content for Claude extended thinking
+        if assistant_content.get("thinking_blocks"):
+            assistant_message_for_history["thinking_blocks"] = assistant_content["thinking_blocks"]
+        if assistant_content.get("reasoning_content"):
+            assistant_message_for_history["reasoning_content"] = assistant_content["reasoning_content"]
+        
+        messages.append(assistant_message_for_history)
 
         # Send response via A2A - use new_agent_parts_message
         response_message = new_agent_parts_message(

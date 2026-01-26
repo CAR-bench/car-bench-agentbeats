@@ -81,6 +81,10 @@ def main():
     logger.info(
         "Starting CAR-bench agent",
         model=agent_llm,
+        temperature=completion_kwargs["temperature"],
+        thinking=completion_kwargs["thinking"],
+        reasoning_effort=completion_kwargs["reasoning_effort"],
+        interleaved_thinking=completion_kwargs["interleaved_thinking"],
         host=args.host,
         port=args.port
     )
