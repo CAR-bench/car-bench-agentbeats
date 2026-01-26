@@ -39,8 +39,12 @@ SYSTEM_PROMPT = """You are a helpful car voice assistant. Follow the policy and 
 class CARBenchAgentExecutor(AgentExecutor):
     """Executor for the CAR-bench purple agent using native tool calling."""
 
-    def __init__(self, model: str):
+    def __init__(self, model: str, temperature: float = 0.0, thinking: bool = False, reasoning_effort: str = "medium", interleaved_thinking: bool = False):
         self.model = model
+        self.temperature = temperature
+        self.thinking = thinking
+        self.reasoning_effort = reasoning_effort  # Can be 'none', 'disable', 'low', 'medium', 'high', or integer token budget
+        self.interleaved_thinking = interleaved_thinking  # Whether to use interleaved thinking
         self.ctx_id_to_messages: dict[str, list[dict]] = {}
         self.ctx_id_to_tools: dict[str, list[dict]] = {}
 
@@ -108,11 +112,46 @@ class CARBenchAgentExecutor(AgentExecutor):
 
         # Call LLM with native tool calling
         try:
+            # Configure prompt caching
+            tools[-1]["function"]["cache_control"] = {"type": "ephemeral"} # tools
+            messages[0]["cache_control"] = {"type": "ephemeral"} # system prompt
+
+            completion_kwargs = {
+                "model": self.model,
+                "tools": tools if tools else None,
+                "temperature": self.temperature,
+            }
+
+            # Configure reasoning effort / thinking
+            if self.thinking:
+                    if self.reasoning_effort in [
+                        "none",
+                        "disable",
+                        "low",
+                        "medium",
+                        "high",
+                    ]:
+                        completion_kwargs["reasoning_effort"] = self.reasoning_effort
+                    else:
+                        try:
+                            thinking_budget = int(self.reasoning_effort)
+                        except ValueError:
+                            raise ValueError(
+                                "reasoning_effort must be 'none', 'disable', 'low', 'medium', 'high', or an integer value"
+                            )
+                        completion_kwargs["thinking"] = {
+                            "type": "enabled",
+                            "budget_tokens": thinking_budget,
+                        }
+                    if self.interleaved_thinking:
+                        completion_kwargs["extra_headers"] = {
+                                "anthropic-beta": "interleaved-thinking-2025-05-14"
+                            }
+
+
             response = completion(
                 messages=messages,
-                model=self.model,
-                tools=tools if tools else None,  # Pass tools to LLM natively
-                temperature=0.0,
+                **completion_kwargs
             )
             
             # Get the message from LLM

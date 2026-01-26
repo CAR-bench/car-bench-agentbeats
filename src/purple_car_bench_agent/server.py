@@ -61,12 +61,22 @@ def main():
         default=None,  # Will use env var or fallback
         help="LLM model (can also be set via AGENT_LLM env var)"
     )
+    parser.add_argument("--temperature", type=float, default=0.0, help="Temperature for the LLM")
+    parser.add_argument("--thinking", action="store_true", help="Enable thinking mode for the LLM")
+    parser.add_argument("--reasoning-effort", type=str, default="medium", help="Reasoning effort level for the LLM")
+    parser.add_argument("--interleaved-thinking", action="store_true", help="Enable interleaved thinking for the LLM")
     args = parser.parse_args()
     
     # Support both command-line args and environment variables
     # Priority: CLI args > env vars > default
     import os
     agent_llm = args.agent_llm or os.getenv("AGENT_LLM", "gemini/gemini-2.5-flash")
+    completion_kwargs = {
+        "temperature": args.temperature or float(os.getenv("AGENT_TEMPERATURE", 0.0)),
+        "thinking": args.thinking or (os.getenv("AGENT_THINKING", "false").lower() == "true"),
+        "reasoning_effort": args.reasoning_effort or os.getenv("AGENT_REASONING_EFFORT", "medium"),
+        "interleaved_thinking": args.interleaved_thinking or (os.getenv("AGENT_INTERLEAVED_THINKING", "false").lower() == "true"),
+    }
 
     logger.info(
         "Starting CAR-bench agent",
@@ -78,7 +88,13 @@ def main():
     card = prepare_agent_card(args.card_url or f"http://{args.host}:{args.port}/")
 
     request_handler = DefaultRequestHandler(
-        agent_executor=CARBenchAgentExecutor(model=agent_llm),
+        agent_executor=CARBenchAgentExecutor(
+            model=agent_llm, 
+            temperature=completion_kwargs["temperature"], 
+            thinking=completion_kwargs["thinking"], 
+            reasoning_effort=completion_kwargs["reasoning_effort"], 
+            interleaved_thinking=completion_kwargs["interleaved_thinking"]
+            ),
         task_store=InMemoryTaskStore(),
     )
 
