@@ -7,7 +7,7 @@
 </tr>
 </table>
 
-[![Paper](https://img.shields.io/badge/Paper-Coming%20Soon-orange.svg)](#citation)
+[![Paper](https://img.shields.io/badge/Paper-2601.22027-b31b1b.svg)](https://arxiv.org/abs/2601.22027)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![YouTube](https://img.shields.io/badge/YouTube-Demo-red.svg?logo=youtube)](https://youtu.be/jnS8R59XEWA)
 [![AgentBeats](https://img.shields.io/badge/AgentBeats-Green%20Agent-green.svg)](https://agentbeats.dev/johanneskirmayr/car-bench-evaluator)
@@ -15,7 +15,7 @@
 
 *Evaluation framework for CAR-bench using the A2A protocol and AgentBeats platform*
 
-[Overview](#overview) • [Setup](#setup) • [Usage](#usage) • [Evaluation](#evaluation) • [Architecture](#architecture) • [Links](#important-links)
+[Overview](#overview) • [Setup](#setup) • [Usage](#usage) • [Evaluation](#evaluation) • [Citation](#citation) • [Links](#important-links)
 
 </div>
 
@@ -574,10 +574,18 @@ Want to build and test your own agent? **Replace the purple agent** while keepin
 
 ## Citation
 
-**Paper (in review)**: Full benchmark methodology, task construction details, and baseline results will be available soon.
+If you use CAR-bench in your research, please cite:
 
 ```bibtex
-@article{}
+@misc{kirmayr2026carbenchevaluatingconsistencylimitawareness,
+      title={CAR-bench: Evaluating the Consistency and Limit-Awareness of LLM Agents under Real-World Uncertainty}, 
+      author={Johannes Kirmayr and Lukas Stappen and Elisabeth André},
+      year={2026},
+      eprint={2601.22027},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2601.22027}, 
+}
 ```
 
 ---
