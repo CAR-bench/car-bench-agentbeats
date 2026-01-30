@@ -62,7 +62,7 @@ To assess whether agents exhibit reliable behavior consistently across repeated 
 - **Pass^k**: Task solved in **all k runs** → measures **consistency** (deployment readiness)
 - **Pass@k**: Task solved in **at least one of k runs** → measures **latent capability**
 
-📄 **Paper** (in review): Full benchmark details, task construction methodology, and baseline results  
+📄 **Paper** ([https://arxiv.org/abs/2601.22027](https://arxiv.org/abs/2601.22027)): Full benchmark details, task construction methodology, and baseline results.  
 🔗 **Original CAR-bench** ([github.com/CAR-bench/car-bench](https://github.com/CAR-bench/car-bench)): Task definitions, environment implementation, tools & policies, baseline evaluation, analysis scripts.
 
 ---
@@ -317,6 +317,8 @@ Each task is evaluated across up to **6 automated metrics** corresponding to its
 - `r_user_end_conversation` (0/1): **Critical**—1.0 if agent acknowledges inability, 0.0 if hallucinates. - LLM-as-a-Judge-Based (with clear instructions/context).
 
 **Task reward**: 1 if all metrics are 1, else 0
+
+*For implementation details, see reward_calculators.py in `car_bench/envs/reward_calculators.py`.*
 
 #### Disambiguation Tasks (56 tasks)
 - All base metrics **+**
