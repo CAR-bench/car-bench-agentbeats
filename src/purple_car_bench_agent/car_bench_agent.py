@@ -150,29 +150,34 @@ class CARBenchAgentExecutor(AgentExecutor):
 
             # Configure reasoning effort / thinking
             if self.thinking:
-                    if self.reasoning_effort in [
-                        "none",
-                        "disable",
-                        "low",
-                        "medium",
-                        "high",
-                    ]:
-                        completion_kwargs["reasoning_effort"] = self.reasoning_effort
-                    else:
-                        try:
-                            thinking_budget = int(self.reasoning_effort)
-                        except ValueError:
-                            raise ValueError(
-                                "reasoning_effort must be 'none', 'disable', 'low', 'medium', 'high', or an integer value"
-                            )
+                    if self.model == "claude-opus-4-6":
                         completion_kwargs["thinking"] = {
-                            "type": "enabled",
-                            "budget_tokens": thinking_budget,
+                            "type": "adaptive"
                         }
-                    if self.interleaved_thinking:
-                        completion_kwargs["extra_headers"] = {
-                                "anthropic-beta": "interleaved-thinking-2025-05-14"
+                    else:
+                        if self.reasoning_effort in [
+                            "none",
+                            "disable",
+                            "low",
+                            "medium",
+                            "high",
+                        ]:
+                            completion_kwargs["reasoning_effort"] = self.reasoning_effort
+                        else:
+                            try:
+                                thinking_budget = int(self.reasoning_effort)
+                            except ValueError:
+                                raise ValueError(
+                                    "reasoning_effort must be 'none', 'disable', 'low', 'medium', 'high', or an integer value"
+                                )
+                            completion_kwargs["thinking"] = {
+                                "type": "enabled",
+                                "budget_tokens": thinking_budget,
                             }
+                        if self.interleaved_thinking:
+                            completion_kwargs["extra_headers"] = {
+                                    "anthropic-beta": "interleaved-thinking-2025-05-14"
+                                }
 
 
             response = completion(
