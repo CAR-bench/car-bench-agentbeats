@@ -9,7 +9,6 @@ COPY pyproject.toml uv.lock README.md ./
 COPY src src
 
 # Copy car-bench scenarios BEFORE uv sync (needed for lock file resolution)
-# Note: Run './scenarios/car-bench/setup.sh' locally before building to ensure data is present
 COPY --chown=agentbeats:agentbeats scenarios scenarios
 
 # Clean up any local build artifacts

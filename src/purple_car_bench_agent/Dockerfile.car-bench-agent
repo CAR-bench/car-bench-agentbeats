@@ -7,7 +7,6 @@ WORKDIR /home/agentbeats/app
 
 COPY pyproject.toml uv.lock README.md ./
 COPY src src
-# Note: Run './scenarios/car-bench/setup.sh' locally before building to ensure data is present
 COPY --chown=agentbeats:agentbeats scenarios scenarios
 
 # Clean up any local build artifacts from scenarios

@@ -124,12 +124,7 @@ uv sync --extra car-bench-agent --extra car-bench-evaluator
 ```
 
 ```bash
-# 3. Manually Download CAR-bench data (~200MB: navigation, POIs, calendars, contacts)
-./scenarios/car-bench/setup.sh
-```
-
-```bash
-# 4. Configure API keys
+# 3. Configure API keys
 cp .env.example .env
 # Edit .env with your keys:
 #   ANTHROPIC_API_KEY=sk-ant-...
@@ -287,11 +282,11 @@ env = {
 [green_agent]
 env = { 
     GEMINI_API_KEY = "${GEMINI_API_KEY}",  # User simulator model
-    CAR_BENCH_DATA_DIR = "/path/to/data"   # Data directory
 }
 ```
 
 - **Note**: The env line in the .toml need to be one-liners.
+- **Note**: Tasks and mock data are automatically loaded from HuggingFace — no manual data download required.
 
 ---
 

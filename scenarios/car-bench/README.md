@@ -12,24 +12,9 @@ uv sync --extra car-bench-agent --extra car-bench-evaluator
 
 This installs:
 - **car-bench-agent** extras: LLM dependencies for the purple agent (google-adk, google-genai, litellm)
-- **car-bench-evaluator** extras: car-bench package from GitHub for the green evaluator
+- **car-bench-evaluator** extras: car-bench package for the green evaluator (tasks and mock data are automatically loaded from HuggingFace)
 
-### 2. Download car-bench data
-
-Run the setup script to clone the car-bench repository and download large data files:
-
-```bash
-./scenarios/car-bench/setup.sh
-```
-
-This will:
-- Clone the car-bench repository to `scenarios/car-bench/car-bench/`
-- Download large mock_data files from GitHub releases
-- Extract them into the correct location
-
-The data will be automatically used via the `CAR_BENCH_DATA_DIR` environment variable.
-
-### 3. Set your API keys
+### 2. Set your API keys
 
 Create a `.env` file with your API keys:
 
@@ -78,21 +63,6 @@ The benchmark is configured via `scenarios/scenario.toml` and `scenarios/scenari
 - **tasks_*_task_id_filter**: Alternative to num_tasks - specify exact task IDs (e.g., `["base_0", "base_2"]`)
 - **max_steps**: Maximum conversation turns per task
 
-## Data Directory Override
-
-By default, the setup script places data at `scenarios/car-bench/car-bench/mock_data/` and this is automatically used. 
-
-To use a different data directory, set the `CAR_BENCH_DATA_DIR` environment variable:
-
-```bash
-export CAR_BENCH_DATA_DIR=/path/to/custom/mock_data
-uv run agentbeats-run scenarios/scenario.toml
-```
-
 ## Troubleshooting
 
-**Missing data files**: Ensure you ran `./scenarios/car-bench/setup.sh` and the download completed successfully.
-
 **Import errors**: Make sure you installed the extras: `uv sync --extra car-bench-agent --extra car-bench-evaluator`
-
-**Wrong data location**: Check that `CAR_BENCH_DATA_DIR` points to the correct directory or leave it unset to use the default.
