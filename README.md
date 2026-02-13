@@ -12,6 +12,7 @@
 [![YouTube](https://img.shields.io/badge/YouTube-Demo-red.svg?logo=youtube)](https://youtu.be/jnS8R59XEWA)
 [![AgentBeats](https://img.shields.io/badge/AgentBeats-Green%20Agent-green.svg)](https://agentbeats.dev/johanneskirmayr/car-bench-evaluator)
 [![AgentBeats](https://img.shields.io/badge/AgentBeats-Purple%20Agent-purple.svg)](https://agentbeats.dev/johanneskirmayr/car-bench-agent)
+[![Website](https://img.shields.io/badge/Website-CAR--bench-blue)](https://car-bench.github.io/car-bench/)
 
 *Evaluation framework for CAR-bench using the A2A protocol and AgentBeats platform*
 
