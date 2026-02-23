@@ -18,6 +18,11 @@ from a2a.types import (
 )
 
 
+class AgentFailedError(Exception):
+    """Raised when an agent returns a non-successful terminal status."""
+    pass
+
+
 def parse_toml(d: dict[str, object]) -> tuple[EvalRequest, str, dict[str, str]]:
     green = d.get("green_agent")
     if not isinstance(green, dict) or "endpoint" not in green:
@@ -105,8 +110,7 @@ async def main():
                     print(task.artifacts)
                     artifacts = task.artifacts
                 elif status.state.value not in ["submitted", "working"]:
-                    print(f"Agent returned status {status.state.value}. Exiting.")
-                    exit(1)
+                    raise AgentFailedError(f"Agent returned status {status.state.value}.")
 
             case (task, TaskArtifactUpdateEvent() as artifact_event):
                 print_parts(artifact_event.artifact.parts, "Artifact update")
@@ -119,14 +123,17 @@ async def main():
                     print(task.artifacts)
                     artifacts = task.artifacts
                 elif status.state.value not in ["submitted", "working"]:
-                    print(f"Agent returned status {status.state.value}. Exiting.")
-                    exit(1)
+                    raise AgentFailedError(f"Agent returned status {status.state.value}.")
 
             case _:
                 print("Unhandled event")
 
     msg = req.model_dump_json()
-    await send_message(msg, green_url, streaming=True, consumer=event_consumer)
+    try:
+        await send_message(msg, green_url, streaming=True, consumer=event_consumer)
+    except AgentFailedError as e:
+        print(str(e))
+        sys.exit(1)
 
     if output_path:
         all_data_parts = []
